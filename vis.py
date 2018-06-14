@@ -7,10 +7,10 @@ from mayavi import mlab
 import numpy as np
 
 
-def vis_axes():
-    mlab.quiver3d([0], [0], [0], [1], [0], [0], color=(1, 0, 0))
-    mlab.quiver3d([0], [0], [0], [0], [1], [0], color=(0, 1, 0))
-    mlab.quiver3d([0], [0], [0], [0], [0], [1], color=(0, 0, 1))
+def vis_axes(length=1):
+    mlab.quiver3d([0], [0], [0], [length], [0], [0], color=(1, 0, 0))
+    mlab.quiver3d([0], [0], [0], [0], [length], [0], color=(0, 1, 0))
+    mlab.quiver3d([0], [0], [0], [0], [0], [length], color=(0, 0, 1))
 
 
 def vis_origin():
