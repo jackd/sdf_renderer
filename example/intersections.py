@@ -8,6 +8,7 @@ import tensorflow as tf
 import numpy as np
 from sdf_renderer.sdf.primitives import Sphere, Box
 import sdf_renderer.camera_utils as camera_utils
+import sdf_renderer.homogeneous as homogeneous
 from sdf_renderer.render import get_intersections, get_normals
 
 
@@ -47,7 +48,7 @@ aspect_ratio = tf.concat([aspect_ratio, aspect_ratio], axis=0)
 fov_y = tf.concat([fov_y, fov_y], axis=0)
 
 camera_matrices = camera_utils.look_at(eye, center, world_up)
-R, t = camera_utils.split_homogeneous(camera_matrices)
+R, t = homogeneous.split_homogeneous(camera_matrices)
 directions = camera_utils.get_transformed_camera_rays(
     image_height, image_width, fov_y, R)
 

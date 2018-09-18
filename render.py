@@ -5,6 +5,7 @@ from __future__ import print_function
 import tensorflow as tf
 from . import camera_utils
 from . import shader
+from . import homogeneous
 
 
 def _get_ray_endpoints(offset, directions, lengths):
@@ -299,11 +300,12 @@ def render(
         camera_position, camera_lookat, camera_up)
 
     camera_matrices = camera_matrices[:, :3]
-    camera_rotation, camera_offset = camera_utils.split_homogeneous(
+    camera_rotation, camera_offset = homogeneous.split_homogeneous(
         camera_matrices)
 
+    focal_length_px = camera_utils.get_focal_length(image_height, fov_y, 'deg')
     directions = camera_utils.get_transformed_camera_rays(
-        image_height, image_width, fov_y, camera_rotation)
+        image_height, image_width, focal_length_px, camera_rotation)
 
     lengths, intersections, hit, missed = get_intersections(
             sdf_fn, camera_position, directions, max_length=max_ray_length,

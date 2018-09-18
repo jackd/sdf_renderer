@@ -9,6 +9,7 @@ import numpy as np
 from sdf_renderer.sdf.primitives import Sphere
 from sdf_renderer.sdf.primitives import Box
 from sdf_renderer import camera_utils
+import sdf_renderer.homogeneous as homogeneous
 from sdf_renderer import render
 
 threshold = 1e-5
@@ -30,7 +31,7 @@ image_width = 64
 
 camera_matrices = camera_utils.look_at(eye, center, world_up)
 
-R, t = camera_utils.split_homogeneous(camera_matrices)
+R, t = homogeneous.split_homogeneous(camera_matrices)
 
 directions = camera_utils.get_transformed_camera_rays(
     image_height, image_width, fov_y, R)

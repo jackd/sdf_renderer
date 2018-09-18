@@ -11,6 +11,7 @@ import numpy as np
 from sdf_renderer.sdf.primitives import Sphere
 from sdf_renderer import camera_utils
 from sdf_renderer import render
+from sdf_renderer import homogeneous
 
 threshold = 1e-7
 max_length = 3.0
@@ -44,13 +45,14 @@ def build_graph():
     world_up = tf.constant([[0, 0, 1]], dtype=tf.float32)
 
     fov_y = tf.ones(shape=(1,), dtype=tf.float32) * 40.0
+    focal_length_px = camera_utils.get_focal_length(image_height, fov_y, 'deg')
 
     camera_matrices = camera_utils.look_at(eye, center, world_up)
 
-    R, t = camera_utils.split_homogeneous(camera_matrices)
+    R, t = homogeneous.split_homogeneous(camera_matrices)
 
     directions = camera_utils.get_transformed_camera_rays(
-        image_height, image_width, fov_y, R)
+        image_height, image_width, focal_length_px, R)
 
     return sdf, eye, directions, scale_factor
 

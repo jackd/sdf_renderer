@@ -8,6 +8,7 @@ import tensorflow as tf
 import numpy as np
 from sdf_renderer.sdf.primitives import Sphere, Box
 import sdf_renderer.camera_utils as camera_utils
+import sdf_renderer.homogeneous as homogeneous
 from sdf_renderer.render import get_intersections, get_normals, render
 
 n = 64
@@ -17,9 +18,9 @@ threshold = 1e-2
 # threshold = 1e-7
 # threshold = 0
 
-image_height = 128
-image_width = 128
-fov_y = 40.0
+image_height = 64
+image_width = 64
+fov_y = 40.
 max_length = 3
 
 is_rgb = False
@@ -53,7 +54,7 @@ light_positions = tf.constant(
 light_intensities = tf.ones(shape=(1, 3, 3), dtype=tf.float32)
 
 camera_matrices = camera_utils.look_at(eye, center, world_up)
-R, t = camera_utils.split_homogeneous(camera_matrices)
+R, t = homogeneous.split_homogeneous(camera_matrices)
 directions = camera_utils.get_transformed_camera_rays(
     image_height, image_width, fov_y, R)
 
@@ -120,16 +121,28 @@ with tf.Session() as sess:
 def vis(camera_location, ray_directions, intersections, normals, hit, missed,
         sdf_vals, coords, pixel_colors, hit_pixels, missed_pixels):
     import sdf_renderer.vis as vis
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     # pixel_colors[np.logical_not(hit_pixels)] = 0
-    plt.imshow(pixel_colors, cmap=None if is_rgb else 'gray')
-    plt.show(block=False)
-    vis.vis_rays(camera_location, ray_directions)
+    # plt.imshow(pixel_colors, cmap=None if is_rgb else 'gray')
+    from PIL import Image
+    if not is_rgb:
+        pixel_colors = np.stack([pixel_colors]*3, axis=-1)
+    pixel_colors[pixel_colors > 1] = 1
+    pixel_colors[pixel_colors < 0] = 0
+    # pixel_colors /= np.max(pixel_colors)
+    pixel_colors = (pixel_colors*255).astype(np.uint8)
+    Image.fromarray(pixel_colors).resize((255, 255)).show()
+
+    # plt.show(block=False)
+    print(camera_location.shape)
+    print(ray_directions.shape)
+    vis.vis_rays(camera_location, ray_directions[::8])
     vis.vis_points(
         intersections[hit], scale_factor=0.02, color=(0, 1, 0))
-    # vis.vis_points(
-    #     intersections[missed],
-    #     scale_factor=0.02, color=(0, 0, 1))
+    vis.vis_points(
+        intersections[missed],
+        scale_factor=0.02, color=(0, 0, 1))
+
     vis.vis_points(
         intersections[np.logical_not(np.logical_or(hit, missed))],
         scale_factor=0.02, color=(1, 0, 0))
@@ -138,7 +151,7 @@ def vis(camera_location, ray_directions, intersections, normals, hit, missed,
     vis.vis_axes()
     vis.vis_contours(sdf_vals, coords)
     vis.show()
-    plt.close()
+    # plt.close()
 
 
 i = i[0]
